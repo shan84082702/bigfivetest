@@ -1,0 +1,95 @@
+<!DOCTYPE html> 
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1" >
+		<title>bigfivetest</title>
+	</head> 
+	<body> 
+	<p align='center' valign='middle'>歡迎</p>
+	<div style="position:absolute; text-align:center; width:100%; top:20%">
+	<div id="logo" style="text-align:center;"></div>
+	<div id="info" style="text-align:center;"></div>
+	<div id="white" style="text-align:center;"></div>
+	<div id="fb-root" style="text-align:center;"></div>
+	<div id="user-info" style="text-align:center;"></div>
+	<p style="text-align:center;"><button id="fb-auth">Login</button></p>
+
+		<script>
+		document.getElementById("logo").innerHTML="<img src=\"icons_300ppi/web-34.png\" width=\"20%\">";
+		document.getElementById("info").innerHTML="歡迎使用本網站</br>為了提供您最佳個人化食譜推薦</br>請先登入FB並授權貼文權限後</br>填寫基本資料及簡短測驗</br>感謝您的合作";
+		document.getElementById("white").innerHTML="</br>";
+		var userID="",userName="",userEmail="";
+		window.fbAsyncInit = function() {
+		  FB.init({ appId: '271324326733538', 
+				status: true, 
+				cookie: true,
+				xfbml: true,
+				oauth: true});
+
+		  function updateButton(response) {
+			var button = document.getElementById('fb-auth');
+				
+			if (response.authResponse) {
+			  //user is already logged in and connected
+			  var userInfo = document.getElementById('user-info');
+			  FB.api('/me', { fields: 'id, name, email' },function(response) {
+				userInfo.innerHTML = '<img src="https://graph.facebook.com/' 
+			  + response.id + '/picture">' + '<br>' + response.name;
+				button.innerHTML = 'Logout';
+				document.getElementById("myButton").disabled = false;
+				userID=response.id;
+				userName=response.name;
+				userEmail=response.email;
+			  });
+			  button.onclick = function() {
+				FB.logout(function(response) {
+				  var userInfo = document.getElementById('user-info');
+				  userInfo.innerHTML="";
+			});
+			  };
+			} else {
+			  //user is not connected to your app or logged out
+			  button.innerHTML = '使用facebook帳號登入';
+			  document.getElementById("myButton").disabled = true;
+			  button.onclick = function() {
+				FB.login(function(response) {
+			  if (response.authResponse) {
+					FB.api('/me', function(response) {
+				  var userInfo = document.getElementById('user-info');
+				  userInfo.innerHTML = 
+						'<img src="https://graph.facebook.com/' 
+					+ response.id + '/picture" style="margin-right:5px"/>' 
+					+ '<br>' +response.name;
+				});    
+				  } else {
+					//user cancelled login or did not grant authorization
+				  }
+				}, {scope:'email'});    
+			  }
+			}
+		  }
+
+		  // run once with current status and whenever the status changes
+		  FB.getLoginStatus(updateButton);
+		  FB.Event.subscribe('auth.statusChange', updateButton);    
+		};
+			
+		(function() {
+		  var e = document.createElement('script'); e.async = true;
+		  e.src = document.location.protocol 
+			+ '//connect.facebook.net/en_US/all.js';
+		  document.getElementById('fb-root').appendChild(e);
+		}());
+		
+		function express(){
+			var value=userID;
+			var name=userName;
+			var email=userEmail;
+			location.href="loginfinddata.php?userID="+value+"&userName="+name+"&userEmail="+email;
+		}
+
+		</script>
+		<p style="text-align:center;"><input type="button" id="myButton" value="開始使用" onclick="express()" disabled="true"></p></div>
+	</body> 
+</html>
